@@ -1,0 +1,14 @@
+# Rebuilt by the weekly run, so they don't need to be in the repo
+League/data/site_data.pkl
+site/*.html
+site/almost_points/index.html
+
+# FantasyLuck downloads and outputs are big; the weekly run keeps them in GitHub's cache instead
+FantasyLuck/data/*.parquet
+FantasyLuck/data/*.json
+FantasyLuck/data/*.joblib
+
+# Jupyter and Mac clutter
+.ipynb_checkpoints/
+__pycache__/
+.DS_Store
