@@ -1,0 +1,11 @@
+pandas
+numpy
+pyarrow
+nflreadpy
+scikit-learn
+joblib
+espn_api
+jupyter
+nbclient
+nbformat
+ipykernel
