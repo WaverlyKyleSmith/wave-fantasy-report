@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Almost Points · Wave Fantasy Report</title>
+<link rel="icon" href="../assets/wfr-icon-64.png">
+<link rel="apple-touch-icon" href="../assets/wfr-icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans+SC:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   Site colors and font, the same as every other WFR page.
+   ============================================================ */
+:root {
+  --navy: #13294B;
+  --wolf: #A5ACAF;
+  --wolf-light: #E6E8E9;
+  --white: #FFFFFF;
+  --ink: #1B2533;
+  --ink-2: #5B6266;
+  --ink-3: #868D91;
+  --line: #DADDDF;
+  --line-2: #EEF0F2;
+  --green: #1F8A4C;
+  --red: #C9302C;
+  --scored: #1F8A4C;      /* points he actually scored */
+  --gained: #8FCFA6;      /* points he scored after a teammate's lost TD or on a Hail Mary */
+  --flag: #F2837F;        /* the red shades for points he should have had */
+  --qb_fault: #9F1B17;
+  --drop: #C9302C;
+  --replay: #F8BDBA;
+  --short: #E5484D;
+  --font: "Alegreya Sans SC", "Trebuchet MS", sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: var(--white); color: var(--ink); font-family: var(--font);
+       font-variant-numeric: lining-nums tabular-nums; font-size: 15px; line-height: 1.4; }
+button, input, select { font: inherit; color: inherit; }
+a { color: var(--navy); }
+
+/* ---------- menu button and navigation drawer (the same on every WFR page) ---------- */
+.wfr-top { background: var(--navy); }
+.wfr-top-in { max-width: 1240px; margin: 0 auto; padding: 16px 24px 0; }
+.wfr-menu { display: inline-flex; width: 46px; height: 46px; align-items: center; justify-content: center; border-radius: 50%;
+            background: rgba(255,255,255,0.08); border: 1px solid #3C5476; cursor: pointer; padding: 0; }
+.drawer { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(5,15,35,0.55); }
+body.menu-open .drawer { display: block; }
+body.menu-open { overflow: hidden; }
+.drawer nav { position: absolute; left: 0; top: 0; bottom: 0; width: min(320px, 86vw); background: var(--navy);
+              box-shadow: 8px 0 30px rgba(5,15,35,0.35); display: flex; flex-direction: column; padding: 18px 14px 24px; overflow-y: auto; }
+.drawer-logo { height: 52px; width: auto; align-self: flex-start; margin: 0 4px 16px; }
+.drawer-row { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 14px; }
+.drawer-row span { color: var(--white); font-size: 20px; font-weight: 800; }
+.drawer-x { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; border-radius: 50%;
+            border: 1px solid #3C5476; background: transparent; cursor: pointer; }
+.drawer-home { display: flex; padding: 14px 18px; color: #D5D9DB; text-decoration: none; font-size: 18px; font-weight: 600;
+               border-bottom: 1px solid #23395C; margin-bottom: 8px; }
+.drawer-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 10px; text-decoration: none; color: #D5D9DB; }
+.drawer-item span { font-size: 20px; font-weight: 600; }
+.drawer-item[aria-current="page"] { background: rgba(255,255,255,0.10); color: var(--white); }
+.drawer-item[aria-current="page"] span { font-weight: 800; }
+.drawer-item[aria-current="page"]::after { content: ""; margin-left: auto; width: 4px; height: 22px; border-radius: 2px; background: var(--wolf); }
+.drawer-foot { margin-top: auto; padding: 18px 4px 0; display: flex; flex-direction: column; gap: 8px; }
+.drawer-foot button { min-height: 44px; border-radius: 8px; border: 0; background: var(--wolf); color: var(--navy); font-weight: 800; cursor: pointer; }
+.drawer-foot a { display: flex; justify-content: center; align-items: center; min-height: 44px; border-radius: 8px; border: 1px solid #3C5476; color: var(--white); text-decoration: none; }
+
+/* ---------- navy header band and footer ---------- */
+.wfr-band { position: relative; overflow: hidden; background: var(--navy); color: var(--white); }
+.wfr-band-ghost { position: absolute; right: -24px; top: -56px; font-size: 300px; font-weight: 800; line-height: 1; color: rgba(165,172,175,0.08); pointer-events: none; }
+.wfr-band-in { position: relative; max-width: 1240px; margin: 0 auto; padding: 24px 24px 14px; display: flex; flex-direction: column; gap: 8px; }
+.wfr-band h1 { margin: 0; font-size: 64px; line-height: 0.95; font-weight: 800; }
+.wfr-waves { display: block; width: 100%; height: 80px; }
+.wfr-footer { background: var(--navy); color: var(--white); }
+.wfr-footer .wfr-waves { height: 100px; background: var(--white); }
+.wfr-footer-in { max-width: 1240px; margin: 0 auto; padding: 6px 24px 36px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+.wfr-footer-in img { height: 84px; width: auto; display: block; }
+.wfr-footer-in strong { font-size: 17px; }
+
+/* ---------- the page ---------- */
+#ap { max-width: 1240px; margin: 0 auto; padding: 4px 24px 44px; display: flex; flex-direction: column; gap: 28px; }
+.ap-sec { display: flex; flex-direction: column; gap: 12px; }
+.ap-h2 { margin: 0; font-size: 28px; font-weight: 800; color: var(--navy); }
+.ap-kicker { font-size: 15px; font-weight: 700; color: var(--wolf); letter-spacing: 1px; }
+.ap-sub { margin: 0; font-size: 18px; color: #D5D9DB; }
+.ap-card { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+
+/* navy number tiles */
+.ap-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+.ap-tile { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border-radius: 12px; background: var(--navy); color: var(--white); min-width: 0; }
+.ap-tile .lab { font-size: 14px; font-weight: 700; opacity: 0.85; }
+.ap-tile .big { font-size: 34px; font-weight: 800; line-height: 1; }
+.ap-tile .sub { font-size: 15px; opacity: 0.9; }
+
+/* controls */
+.ap-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.ap-seg { display: inline-flex; gap: 2px; padding: 3px; background: var(--wolf-light); border-radius: 8px; }
+.ap-seg button { border: 0; background: transparent; padding: 7px 14px; min-height: 36px; border-radius: 6px; cursor: pointer; color: var(--navy); font-size: 14px; font-weight: 700; }
+.ap-seg button[aria-pressed="true"] { background: var(--navy); color: var(--white); }
+.ap-seg.dark { background: rgba(255,255,255,0.08); }
+.ap-seg.dark button { color: var(--white); }
+.ap-seg.dark button[aria-pressed="true"] { background: var(--wolf); color: var(--navy); }
+.ap-select { padding: 7px 10px; min-height: 40px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink); }
+.wfr-band .ap-select { border: 0; }
+.ap-search { width: 240px; margin-left: auto; padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px; }
+.ap-check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; min-height: 40px; }
+.ap-check input { width: 16px; height: 16px; margin: 0; }
+
+/* the table: every column is shaded by its own red, stronger with more points lost */
+.ap-tablebox { border: 1px solid var(--line); border-radius: 12px; padding: 4px 8px; overflow-x: auto; }
+.ap-table { width: 100%; min-width: 1180px; border-collapse: collapse; font-size: 14px; }
+.ap-table th { padding: 0; text-align: right; font-size: 13px; font-weight: 700; color: var(--navy); white-space: nowrap; border-bottom: 2px solid var(--navy); }
+.ap-table th button { all: unset; display: block; box-sizing: border-box; width: 100%; padding: 10px 8px; cursor: pointer; text-align: inherit; }
+.ap-table th button:focus-visible { outline: 2px solid var(--navy); outline-offset: -2px; }
+.ap-table th.sorted button::after { content: " ↓"; }
+.ap-table th.sorted.asc button::after { content: " ↑"; }
+.ap-table th.left, .ap-table td.left { text-align: left; }
+.ap-table td { padding: 3px; border-bottom: 1px solid var(--line-2); }
+.ap-table td.player { padding: 6px 8px; }
+.ap-table tr:last-child td { border-bottom: 0; }
+.ap-table .sep { border-left: 1px solid var(--line-2); }
+.hc { display: block; padding: 8px; border-radius: 5px; text-align: right; white-space: nowrap; font-weight: 600; }
+.ap-player { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+.ap-player b { font-size: 15px; }
+.ap-player:hover b { text-decoration: underline; }
+.ap-sw { display: inline-block; width: 9px; height: 9px; border-radius: 2px; flex: none; }
+.ap-pill { display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; height: 16px; border-radius: 4px;
+           background: var(--wolf-light); color: var(--navy); font-size: 9px; font-weight: 800; flex: none; }
+.ap-face { flex: none; border-radius: 50%; background: var(--wolf-light); object-fit: cover; object-position: 50% 15%; }
+.ap-chip { padding: 3px 8px; border-radius: 4px; font-weight: 700; }
+.ap-chip.up { background: #DCEFE3; color: var(--green); }
+.ap-chip.down { background: #FBEAEA; color: var(--red); }
+.ap-dash { color: var(--line); }
+
+/* phone list */
+.ap-list { display: none; }
+.ap-row { display: flex; align-items: center; gap: 12px; padding: 12px 6px; border-bottom: 1px solid var(--line-2); text-decoration: none; color: var(--ink); }
+.ap-row:last-child { border-bottom: 0; }
+.ap-row-mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.ap-row-name { display: flex; align-items: center; gap: 6px; }
+.ap-row-meta { font-size: 13px; color: var(--ink-2); }
+.ap-minibar { display: flex; height: 7px; border-radius: 4px; overflow: hidden; background: var(--line-2); }
+.ap-row-right { display: flex; flex-direction: column; align-items: flex-end; }
+.ap-navynum { padding: 4px 8px; border-radius: 6px; background: var(--navy); color: var(--white); font-weight: 800; }
+
+/* pages */
+.ap-pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ap-pages { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.ap-pages button { min-width: 38px; min-height: 38px; padding: 0 10px; border: 0; background: none; border-radius: 6px; cursor: pointer; color: var(--navy); font-weight: 700; }
+.ap-pages button[aria-current="page"] { background: var(--navy); color: var(--white); }
+.ap-pages button:disabled { color: var(--ink-3); cursor: default; }
+.ap-pages .gap { padding: 0 4px; color: var(--ink-3); }
+.ap-count { color: var(--ink-2); }
+.ap-note { font-size: 13px; color: var(--ink-2); margin: 0; }
+.ap-empty { padding: 16px; color: var(--ink-3); }
+
+/* player page */
+.ap-back { align-self: flex-start; display: inline-flex; align-items: center; min-height: 38px; padding: 0 14px; border-radius: 8px;
+           background: var(--wolf); color: var(--navy); text-decoration: none; font-weight: 800; }
+.ap-who { display: flex; align-items: center; gap: 18px; margin-top: 6px; }
+.ap-ring { display: inline-flex; border-radius: 50%; box-shadow: 0 0 0 3px var(--wolf); }
+.ap-who h1 { font-size: 56px; }
+.ap-who-meta { display: inline-flex; align-items: center; gap: 8px; color: #D5D9DB; font-size: 18px; margin-top: 8px; }
+.ap-who-meta .ap-pill { height: 18px; font-size: 10px; }
+.ap-pcontrols { display: flex; gap: 10px; align-items: center; margin-top: 8px; flex-wrap: wrap; }
+
+.ap-bigbar { display: flex; height: 34px; border-radius: 6px; overflow: hidden; background: var(--line-2); }
+.ap-bigbar > span { min-width: 0; display: flex; align-items: center; padding-left: 6px; overflow: hidden; white-space: nowrap; font-size: 12px; font-weight: 700; }
+.ap-bigbar .scored { background: var(--scored); color: var(--white); font-size: 13px; padding-left: 10px; }
+.ap-bigbar .seg { border-left: 2px solid var(--white); }
+.ap-barcap { display: flex; justify-content: space-between; color: var(--ink-2); font-size: 13px; margin: 8px 0 10px; gap: 10px; }
+.ap-legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 40px; }
+.ap-legend div { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--line-2); }
+.ap-legend .lab { display: inline-flex; align-items: center; gap: 8px; }
+.ap-legend .lab .ap-sw { width: 12px; height: 12px; border-radius: 3px; }
+.ap-legend small { color: var(--ink-3); font-size: 13px; }
+
+.ap-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.ap-weeks { display: flex; gap: 3px; height: 210px; }
+.ap-wk { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; font-size: 12px; color: var(--ink-2); }
+.ap-wk .top { font-size: 11px; }
+.ap-wk-stack { width: 64%; max-width: 30px; display: flex; flex-direction: column; border-radius: 3px 3px 0 0; overflow: hidden; }
+.ap-key { display: flex; gap: 16px; font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+.ap-key i { display: inline-block; width: 16px; height: 3px; vertical-align: 3px; margin-right: 4px; }
+.ap-trend svg { display: block; width: 100%; height: auto; }
+.ap-cap { font-size: 13px; color: var(--ink-2); margin-top: 8px; }
+
+.ap-grid { border: 1px solid var(--line); border-radius: 12px; padding: 8px; overflow-x: auto; }
+.ap-grid table { border-collapse: collapse; width: 100%; }
+.ap-grid th { padding: 6px 4px; font-size: 13px; color: var(--navy); border-bottom: 2px solid var(--navy); white-space: nowrap; }
+.ap-grid th.rowlab { padding: 4px 10px 4px 0; text-align: left; font-size: 14px; position: sticky; left: 0; background: var(--white); border-bottom: 0; }
+.ap-grid thead th:first-child { position: sticky; left: 0; background: var(--white); }
+.ap-grid td { padding: 2px; }
+.gc { display: block; padding: 7px 2px 5px; min-width: 50px; text-align: center; border-radius: 5px; font-weight: 700; line-height: 1; }
+.gc small { display: block; font-size: 10px; opacity: 0.8; margin-top: 3px; font-weight: 700; }
+
+.ap-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.ap-chips button { font-size: 13px; min-height: 34px; padding: 5px 12px; border-radius: 17px; border: 1px solid var(--line); background: var(--white); color: var(--navy); font-weight: 700; cursor: pointer; }
+.ap-chips button[aria-pressed="true"] { background: var(--navy); border-color: var(--navy); color: var(--white); }
+.ap-log { padding: 4px 8px; }
+.ap-play { display: grid; grid-template-columns: 120px minmax(0, 1fr) 70px; gap: 14px; padding: 12px 10px; border-bottom: 1px solid var(--line-2); align-items: start; border-left: 4px solid var(--line); }
+.ap-play:last-child { border-bottom: 0; }
+.ap-play-when { display: flex; flex-direction: column; gap: 2px; }
+.ap-play-when b { font-size: 14px; }
+.ap-play-when span { font-size: 12px; color: var(--ink-3); }
+.ap-play-desc { font-size: 14px; line-height: 1.45; }
+.ap-play-pts { text-align: right; font-weight: 800; }
+
+@media (max-width: 760px) {
+  .wfr-top-in { padding: 12px 16px 0; }
+  .wfr-band-in { padding: 18px 16px 10px; }
+  .wfr-band-ghost { font-size: 150px; top: -20px; right: -16px; }
+  .wfr-band h1 { font-size: 44px; }
+  .ap-who h1 { font-size: 36px; }
+  .ap-sub, .ap-who-meta { font-size: 15px; }
+  .ap-kicker { font-size: 14px; }
+  .wfr-waves { height: 50px; }
+  .wfr-footer .wfr-waves { height: 60px; }
+  .wfr-footer-in { padding: 6px 16px 28px; flex-direction: column; align-items: flex-start; }
+  .wfr-footer-in img { height: 69px; }
+  #ap { padding: 4px 16px 32px; gap: 22px; }
+  .ap-h2 { font-size: 24px; }
+  .ap-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ap-tile { padding: 14px 16px; }
+  .ap-tile .big { font-size: 28px; }
+  .ap-tablebox { display: none; }
+  .ap-list { display: block; padding: 6px 12px; }
+  .ap-search { margin-left: 0; width: 100%; font-size: 16px; }
+  .ap-two { grid-template-columns: 1fr; }
+  .ap-legend { grid-template-columns: 1fr; }
+  .ap-bigbar { height: 22px; }
+  .ap-bigbar > span { font-size: 0; }
+  .ap-play { grid-template-columns: minmax(0, 1fr) 56px; }
+  .ap-play-when { grid-column: 1 / -1; flex-direction: row; gap: 8px; align-items: baseline; }
+  .ap-pages .wide { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- Menu button. Almost Points lives in its own folder inside site/, so every link to another page steps up one level. -->
+<div class="wfr-top"><div class="wfr-top-in">
+  <button type="button" class="wfr-menu" onclick="openMenu()" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3 6h16M3 11h16M3 16h16" stroke="#FFFFFF" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+</div></div>
+
+<!-- Navy header band. Its contents change between the table and a player page. -->
+<section class="wfr-band">
+  <span class="wfr-band-ghost" aria-hidden="true">WFR</span>
+  <div class="wfr-band-in" id="apBand"></div>
+  <svg class="wfr-waves" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true" style="background: var(--navy)">
+    <path d="M0 36 C 180 4, 360 4, 540 32 S 900 64, 1080 32 S 1340 4, 1440 24 V 80 H 0 Z" fill="#A5ACAF" opacity="0.55"/>
+    <path d="M0 52 C 240 24, 420 28, 620 50 S 980 72, 1180 48 S 1380 30, 1440 40 V 80 H 0 Z" fill="#E6E8E9"/>
+    <path d="M0 66 C 200 50, 470 53, 720 66 S 1180 78, 1440 59 V 80 H 0 Z" fill="#FFFFFF"/>
+  </svg>
+</section>
+
+<main id="ap"></main>
+
+<footer class="wfr-footer">
+  <svg class="wfr-waves" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 36 C 180 4, 360 4, 540 32 S 900 64, 1080 32 S 1340 4, 1440 24 V 80 H 0 Z" fill="#A5ACAF" opacity="0.55"/>
+    <path d="M0 52 C 240 24, 420 28, 620 50 S 980 72, 1180 48 S 1380 30, 1440 40 V 80 H 0 Z" fill="#3C5476"/>
+    <path d="M0 66 C 200 50, 470 53, 720 66 S 1180 78, 1440 59 V 80 H 0 Z" fill="#13294B"/>
+  </svg>
+  <div class="wfr-footer-in">
+    <img src="../assets/wfr-lockup.png" alt="Wave Fantasy Report">
+    <strong>New numbers every Wednesday.</strong>
+  </div>
+</footer>
+
+<!-- Navigation drawer, opened by the menu button -->
+<div class="drawer" onclick="if (event.target === this) closeMenu()">
+  <nav aria-label="Site">
+    <img class="drawer-logo" src="../assets/wfr-lockup.png" alt="Wave Fantasy Report">
+    <div class="drawer-row"><span>Menu</span>
+      <button type="button" class="drawer-x" onclick="closeMenu()" aria-label="Close menu"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 4l10 10M14 4L4 14" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/></svg></button></div>
+    <a class="drawer-home" href="../index.html">Home</a>
+    <a class="drawer-item" href="../recap.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5ACAF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v14H4z M8 9h8 M8 13h8 M8 17h5"/></svg><span>Recap</span></a>
+    <a class="drawer-item" href="../standings.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5ACAF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 20V10 M12 20V4 M19 20v-7"/></svg><span>Standings</span></a>
+    <a class="drawer-item" href="../teams.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5ACAF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6 M15 14.5c3 0 6 2 6 5.5"/></svg><span>Teams</span></a>
+    <a class="drawer-item" href="#/" aria-current="page"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-5 4 4 8-9"/><path d="M15 7h5v5"/></svg><span>Almost Points</span></a>
+    <a class="drawer-item" href="../draft.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5ACAF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h13l-3-3 M20 16H7l3 3"/></svg><span>Draft &amp; Moves</span></a>
+    <a class="drawer-item" href="../history.html"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A5ACAF" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg><span>History</span></a>
+    <div class="drawer-foot">
+      <button type="button" id="copyLeague">Copy league link</button>
+      <a href="../start.html">Change league</a>
+    </div>
+  </nav>
+</div>
+
+<!-- Every player's play log. It's only read when a player page is opened, which keeps the first load fast. -->
+<script type="application/json" id="apLogs">/*__LOGS__*/</script>
+
+<script>
+/* ---------------- data ----------------
+   The export notebook packs the numbers into short arrays to keep the file small. unpack() turns
+   them back into named fields once, when the page opens. */
+const RAW = /*__DATA__*/null;
+const DATA = unpack(RAW);
+
+function unpack(raw) {
+  const C = raw.columns, HEAD = raw.headshot_prefix, ESPN = raw.espn_headshot_prefix;
+  const cols = (a, from) => Object.fromEntries(C.map((c, i) => [c, [a[from + 2 * i], a[from + 2 * i + 1]]]));
+  let logs = null;   // parsed the first time any player page needs it
+  const players = raw.players.map(([id, name, pos, team, head, games, s, weeks, trend]) => {
+    const p = {
+      id, name, pos, team, games, trend,
+      headshot: !head ? null : head.startsWith("http") ? head
+              : head.startsWith("E:") ? ESPN + head.slice(2) + ".png" : HEAD + head,
+      season: { actual: s[0], actual_rank: s[1], adjusted: s[2], adjusted_rank: s[3],
+                actual_pg: s[4], adjusted_pg: s[5], cols: cols(s, 6) },
+      weeks: weeks.map(w => ({ week: w[0], team: w[1], opp: w[2], home: !!w[3], actual: w[4], actual_rank: w[5],
+                               adjusted: w[6], adjusted_rank: w[7], cols: cols(w, 8) })),
+    };
+    Object.defineProperty(p, "log", { get() {
+      if (!logs) logs = JSON.parse(document.getElementById("apLogs").textContent);
+      return (logs[id] || []).map(([week, q, clock, ci, pts, desc]) => ({ week, q, clock, col: C[ci], pts, desc }));
+    } });
+    return p;
+  });
+  return { ...raw, players };
+}
+
+/* ---------------- menu ---------------- */
+function openMenu() { document.body.classList.add("menu-open"); }
+function closeMenu() { document.body.classList.remove("menu-open"); }
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeMenu(); });
+document.querySelectorAll(".drawer-item[href='#/']").forEach(a => a.addEventListener("click", closeMenu));
+document.getElementById("copyLeague").onclick = e => {
+  const b = e.target;
+  navigator.clipboard.writeText(new URL("../index.html", location.href).href)
+    .then(() => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy league link", 1500); });
+};
+
+/* ---------------- setup ---------------- */
+const POS = ["QB", "RB", "WR", "TE"];
+const PER_PAGE = 25;
+const COLS = DATA.columns;
+const LOSS = COLS.filter(c => c !== "gained");
+const byId = Object.fromEntries(DATA.players.map(p => [p.id, p]));
+const ui = { pos: "WR", scope: "season", week: DATA.through_week, perGame: false, sort: "adjusted",
+             asc: false, q: "", page: 1, pScope: "season", pWeek: null, pCol: "" };
+const root = document.getElementById("ap");
+const band = document.getElementById("apBand");
+const $$ = sel => document.querySelectorAll(sel);   // finds controls in both the band and the page
+
+const fmt = x => (Math.round(x * 10) / 10).toFixed(1);
+const signed = x => (x > 0 ? "+" : x < 0 ? "−" : "") + fmt(Math.abs(x));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const isZero = v => Math.abs(v) < 0.05;
+const labels = pos => DATA.labels[pos];
+const teamName = t => (DATA.teams[t] || {}).name || t;
+const vsAt = w => (w.home ? "vs " : "@ ") + w.opp;
+const ordn = n => n + (n % 100 >= 11 && n % 100 <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[n % 10] || "th"));
+const lostOf = line => LOSS.reduce((s, c) => s + Math.max(line.cols[c][0], 0), 0);
+const gainedOf = line => COLS.reduce((s, c) => s + Math.min(line.cols[c][0], 0), 0);
+
+// The same colors as the rest of the site: each luck column has its own red, and the 12-step green-to-red scale ranks things
+const HEX = { flag: "#F2837F", qb_fault: "#9F1B17", drop: "#C9302C", replay: "#F8BDBA", short: "#E5484D", gained: "#8FCFA6" };
+const SCALE = ["#1F8A4C", "#3E9E63", "#6BB487", "#9ACBAD", "#C7E2D1", "#EEF0F2", "#EEF0F2", "#F6D2D0", "#F0A9A5", "#E87C77", "#D9534E", "#C9302C"];
+const DARK_COLS = ["qb_fault", "drop", "short"];
+function heat(v, col, max) {
+  // A cell tinted by the column's own red, stronger with more points lost. Gains are light green.
+  if (isZero(v)) return { txt: "—", bg: "transparent", fg: "var(--line)" };
+  if (v < 0) return { txt: "−" + fmt(-v), bg: "#DCEFE3", fg: "var(--green)" };
+  const a = Math.min(1, v / Math.max(max, 1)), h = HEX[col];
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  return { txt: fmt(v), bg: `rgba(${r},${g},${b},${(0.12 + 0.78 * a).toFixed(2)})`, fg: a > 0.55 && DARK_COLS.includes(col) ? "#FFFFFF" : "var(--ink)" };
+}
+const hc = (h, w = 600) => `<span class="hc" style="background:${h.bg};color:${h.fg};font-weight:${w}">${h.txt}</span>`;
+
+const SILHOUETTE = "data:image/svg+xml," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" fill="#E6E8E9"/>' +
+  '<circle cx="12" cy="9.5" r="4.5" fill="#A5ACAF"/><path d="M3 25c0-5 4-8.5 9-8.5s9 3.5 9 8.5z" fill="#A5ACAF"/></svg>');
+function face(p, size) {
+  return `<img class="ap-face" src="${esc(p.headshot || SILHOUETTE)}" alt="" width="${size}" height="${size}" loading="lazy"
+    onerror="this.onerror=null;this.src='${SILHOUETTE}'">`;
+}
+const pill = team => team ? `<span class="ap-pill" title="${esc(teamName(team))}">${esc(team)}</span>` : "";
+function seg(name, options, active, dark = false) {
+  return `<div class="ap-seg${dark ? " dark" : ""}" role="group">${options.map(([v, t]) =>
+    `<button type="button" data-${name}="${v}" aria-pressed="${v === active}">${t}</button>`).join("")}</div>`;
+}
+const tile = (lab, big, sub) => `<div class="ap-tile"><span class="lab">${lab}</span><span class="big">${big}</span><span class="sub">${sub}</span></div>`;
+const moveChip = m => m > 0 ? `<span class="ap-chip up">↑ ${m}</span>` : m < 0 ? `<span class="ap-chip down">↓ ${-m}</span>` : `<span class="ap-dash">—</span>`;
+
+/* ---------------- routing: #/ is the table, #/player/<id> is a player ---------------- */
+function route() {
+  const m = location.hash.match(/^#\/player\/(.+)$/);
+  const p = m && byId[decodeURIComponent(m[1])];
+  if (p) { ui.pScope = "season"; ui.pWeek = null; ui.pCol = ""; drawPlayer(p); }
+  else drawTable();
+  window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+
+/* ================= TABLE VIEW ================= */
+function tableRows() {
+  const out = [];
+  for (const p of DATA.players) {
+    if (p.pos !== ui.pos) continue;
+    let line, games = p.games;
+    if (ui.scope === "season") line = p.season;
+    else { line = p.weeks.find(w => w.week === ui.week); if (!line) continue; games = 1; }
+    const div = ui.scope === "season" && ui.perGame ? Math.max(games, 1) : 1;
+    const r = { p, games, line, opp: ui.scope === "week" ? vsAt(line) : "", team: line.team || p.team,
+                name: p.name, actual: line.actual / div, adjusted: line.adjusted / div,
+                actual_rank: line.actual_rank, adjusted_rank: line.adjusted_rank };
+    for (const c of COLS) r[c] = line.cols[c][0] / div;
+    r.lost = LOSS.reduce((s, c) => s + Math.max(r[c], 0), 0);
+    out.push(r);
+  }
+  if (ui.scope === "season" && ui.perGame) {
+    // Per-game ranks: re-ranked by points per game, ties by actual points, then name
+    for (const k of ["actual", "adjusted"])
+      [...out].sort((a, b) => b[k] - a[k] || b.actual - a.actual || a.name.localeCompare(b.name))
+        .forEach((r, i) => r[k + "_rank"] = i + 1);
+  }
+  out.forEach(r => r.move = r.actual_rank - r.adjusted_rank);
+  return out;
+}
+
+function tablesTiles(all) {
+  if (!all.length) return "";
+  const pos = ui.pos, when = ui.scope === "week" ? `Week ${ui.week}` : "";
+  const most = all.reduce((a, b) => b.lost > a.lost ? b : a);
+  const riser = all.reduce((a, b) => b.move > a.move ? b : a);
+  const drops = all.reduce((a, b) => b.drop > a.drop ? b : a);
+  const total = all.reduce((s, r) => s + r.lost, 0);
+  const per = ui.scope === "season" && ui.perGame ? " a game" : "";
+  return `<div class="ap-tiles">
+    ${tile(`Most lost to luck${per}`, fmt(most.lost), `${esc(most.name)} · ${esc(most.team)}`)}
+    ${tile("Biggest riser", riser.move > 0 ? `↑ ${riser.move}` : "—", riser.move > 0 ? `${esc(riser.name)} · ${pos}${riser.actual_rank} to ${pos}${riser.adjusted_rank}` : "No one moved up")}
+    ${tile(`Most lost to ${labels(pos).drop.toLowerCase()}s${per}`, fmt(drops.drop), `${esc(drops.name)} · ${esc(drops.team)}`)}
+    ${tile(`Every ${pos}, combined`, Math.round(total).toLocaleString("en-US"), `points lost to luck · ${all.length} players${when ? " · " + when : ""}`)}
+  </div>`;
+}
+
+function drawTable() {
+  const L = labels(ui.pos);
+  const all = tableRows();
+  let rows = ui.q ? all.filter(r => r.name.toLowerCase().includes(ui.q)) : all;
+  const k = ui.sort, dir = ui.asc ? 1 : -1;
+  rows = [...rows].sort((a, b) => typeof a[k] === "string" ? dir * a[k].localeCompare(b[k])
+                                                           : dir * (a[k] - b[k]) || a.adjusted_rank - b.adjusted_rank);
+  const pages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+  ui.page = Math.min(ui.page, pages);
+  const start = (ui.page - 1) * PER_PAGE, shown = rows.slice(start, start + PER_PAGE);
+
+  // Shading is relative to the biggest number in each column across every player at this position
+  const max = Object.fromEntries(COLS.map(c => [c, Math.max(...all.map(r => r[c]), 1)]));
+  const maxLost = Math.max(...all.map(r => r.lost), 1);
+
+  const heads = [
+    ["name", "Player", "left"], [ui.scope === "season" ? "games" : "opp", ui.scope === "season" ? "G" : "Opp", ""],
+    ["actual", "Actual", "sep"], ["actual_rank", "Rank", ""],
+    ...COLS.map((c, i) => [c, `<span style="display:inline-flex;align-items:center;gap:5px"><span class="ap-sw" style="background:${HEX[c]}"></span>${L[c]}</span>`, i === 0 ? "sep" : ""]),
+    ["lost", "Total lost to luck", "sep"],
+    ["adjusted", "Adjusted", "sep"], ["adjusted_rank", "Rank", ""], ["move", "Move", ""],
+  ];
+  const th = heads.map(([key, t, cls]) =>
+    `<th scope="col" class="${cls} ${key === ui.sort ? "sorted" + (ui.asc ? " asc" : "") : ""}"><button type="button" data-sort="${key}">${t}</button></th>`).join("");
+
+  const plain = (txt, fg = "var(--ink)", w = 600) => hc({ txt, bg: "transparent", fg }, w);
+  const trs = shown.map(r => {
+    const li = Math.min(11, Math.floor(r.lost / maxLost * 6) + 6);
+    return `<tr>
+      <td class="player left"><a class="ap-player" href="#/player/${encodeURIComponent(r.p.id)}">${face(r.p, 32)}<b>${esc(r.name)}</b>${pill(r.team)}</a></td>
+      <td>${plain(ui.scope === "season" ? r.games : esc(r.opp), "var(--ink)", 500)}</td>
+      <td class="sep">${plain(fmt(r.actual), "var(--green)", 800)}</td><td>${plain(ui.pos + r.actual_rank, "var(--ink-2)", 500)}</td>
+      ${COLS.map((c, i) => `<td class="${i === 0 ? "sep" : ""}">${hc(heat(r[c], c, max[c]))}</td>`).join("")}
+      <td class="sep">${isZero(r.lost) ? plain("—", "var(--line)") : hc({ txt: fmt(r.lost), bg: SCALE[li], fg: li >= 9 ? "#FFFFFF" : "var(--ink)" }, 800)}</td>
+      <td class="sep">${hc({ txt: fmt(r.adjusted), bg: "var(--navy)", fg: "#FFFFFF" }, 800)}</td>
+      <td>${plain(ui.pos + r.adjusted_rank, "var(--navy)", 700)}</td>
+      <td>${hc({ txt: moveChip(r.move), bg: "transparent", fg: "inherit" }, 700)}</td></tr>`;
+  }).join("");
+
+  const list = shown.map(r => {
+    const segs = LOSS.filter(c => r[c] > 0.05).map(c => `<span style="flex:${r[c]} 1 0;background:${HEX[c]}"></span>`).join("");
+    return `<a class="ap-row" href="#/player/${encodeURIComponent(r.p.id)}">${face(r.p, 40)}
+      <span class="ap-row-mid">
+        <span class="ap-row-name"><b>${esc(r.name)}</b>${pill(r.team)}</span>
+        <span class="ap-row-meta">${ui.pos}${r.actual_rank} → <b style="color:var(--navy)">${ui.pos}${r.adjusted_rank}</b> · ${fmt(r.lost)} lost${ui.scope === "week" ? ` · ${esc(r.opp)}` : ""}</span>
+        <span class="ap-minibar"><span style="flex:${Math.max(r.actual, 0)} 1 0;background:var(--scored)"></span>${segs}</span>
+      </span>
+      <span class="ap-row-right"><span class="ap-navynum">${fmt(r.adjusted)}</span><span style="font-size:12px;color:var(--green);margin-top:3px">${fmt(r.actual)} scored</span></span></a>`;
+  }).join("");
+
+  band.innerHTML = `
+    <span class="ap-kicker">The points that almost counted</span>
+    <h1>Almost Points</h1>
+    <p class="ap-sub">Points lost to flags, missed throws, drops, replay, and goal-line stops · Through Week ${DATA.through_week}</p>`;
+  root.innerHTML = `
+    ${tablesTiles(all)}
+    <section class="ap-sec">
+      <h2 class="ap-h2">Every ${ui.pos}</h2>
+      <div class="ap-controls">
+        ${seg("pos", POS.map(p => [p, p]), ui.pos)}
+        ${seg("scope", [["season", "Season"], ["week", "Week"]], ui.scope)}
+        <select class="ap-select" id="apWeek" aria-label="Week" ${ui.scope === "week" ? "" : "hidden"}>
+          ${Array.from({ length: DATA.through_week }, (_, i) => DATA.through_week - i)
+            .map(w => `<option value="${w}" ${w === ui.week ? "selected" : ""}>Week ${w}</option>`).join("")}
+        </select>
+        <label class="ap-check" ${ui.scope === "season" ? "" : "hidden"}><input type="checkbox" id="apPerGame" ${ui.perGame ? "checked" : ""}> Per game</label>
+        <input class="ap-search" id="apSearch" type="search" placeholder="Find a player" aria-label="Find a player" value="${esc(ui.q)}">
+      </div>
+      <div class="ap-tablebox"><table class="ap-table"><thead><tr>${th}</tr></thead>
+        <tbody>${trs || `<tr><td colspan="${heads.length}" class="left ap-empty">No players match.</td></tr>`}</tbody></table></div>
+      <div class="ap-list ap-card">${list || `<div class="ap-empty">No players match.</div>`}</div>
+      ${pager(rows.length, pages)}
+      <p class="ap-note">Each column is points he should have had, and Total lost to luck adds them up.<br>Gained is the points he scored after a teammate lost a touchdown in the same series, or on a Hail Mary.</p>
+    </section>`;
+
+  root.querySelectorAll("[data-pos]").forEach(b => b.onclick = () => { ui.pos = b.dataset.pos; ui.page = 1; drawTable(); });
+  root.querySelectorAll("[data-scope]").forEach(b => b.onclick = () => {
+    ui.scope = b.dataset.scope; ui.page = 1; if (ui.scope === "week" && ui.sort === "games") ui.sort = "adjusted"; drawTable(); });
+  root.querySelector("#apWeek").onchange = e => { ui.week = +e.target.value; ui.page = 1; drawTable(); };
+  root.querySelector("#apPerGame").onchange = e => { ui.perGame = e.target.checked; drawTable(); };
+  root.querySelector("#apSearch").oninput = e => {
+    ui.q = e.target.value.trim().toLowerCase(); ui.page = 1; drawTable();
+    const s = root.querySelector("#apSearch"); s.focus(); s.setSelectionRange(s.value.length, s.value.length); };
+  root.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+    const key = b.dataset.sort;
+    if (ui.sort === key) ui.asc = !ui.asc;
+    else { ui.sort = key; ui.asc = ["name", "opp", "actual_rank", "adjusted_rank"].includes(key); }
+    ui.page = 1; drawTable();
+  });
+  root.querySelectorAll("[data-page]").forEach(b => b.onclick = () => {
+    ui.page = +b.dataset.page; drawTable(); root.querySelector(".ap-sec").scrollIntoView({ block: "start" }); });
+}
+
+function pager(total, pages) {
+  if (!total) return "";
+  const first = (ui.page - 1) * PER_PAGE + 1, last = Math.min(ui.page * PER_PAGE, total);
+  const nums = [];
+  for (let i = 1; i <= pages; i++) {
+    if (i === 1 || i === pages || Math.abs(i - ui.page) <= 1) nums.push(i);
+    else if (nums[nums.length - 1] !== "…") nums.push("…");
+  }
+  const btns = nums.map(n => n === "…" ? `<span class="gap">…</span>`
+    : `<button type="button" data-page="${n}" ${n === ui.page ? 'aria-current="page"' : ""}>${n}</button>`).join("");
+  return `<nav class="ap-pager" aria-label="Pages">
+    <span class="ap-count">${first}–${last} of ${total}</span>
+    <span class="ap-pages">
+      <button type="button" class="wide" data-page="${ui.page - 1}" ${ui.page === 1 ? "disabled" : ""}>‹ Previous</button>
+      ${btns}
+      <button type="button" data-page="${ui.page + 1}" ${ui.page === pages ? "disabled" : ""}>Next ›</button>
+    </span></nav>`;
+}
+
+/* ================= PLAYER VIEW ================= */
+function drawPlayer(p) {
+  const L = labels(p.pos);
+  const wk = ui.pScope === "week" ? (p.weeks.find(w => w.week === ui.pWeek) || p.weeks[p.weeks.length - 1]) : null;
+  if (wk) ui.pWeek = wk.week;
+  const line = wk || p.season;
+  const lost = lostOf(line), gained = gainedOf(line);
+  const move = line.actual_rank - line.adjusted_rank;
+  const log = p.log.filter(l => !wk || l.week === wk.week);
+  const nPlays = log.filter(l => l.pts > 0).length;
+
+  // Lost to luck as a percentile among players at his position: the share who lost less (that week, in week view)
+  const peers = DATA.players.filter(q => q.pos === p.pos).map(q => wk ? q.weeks.find(w => w.week === wk.week) : q.season).filter(Boolean);
+  const pct = Math.round(100 * peers.filter(x => lostOf(x) < lost).length / Math.max(peers.length, 1));
+
+  // the bar: scored (with any gained points as a lighter green at its end), then each red shade
+  const parts = LOSS.filter(c => line.cols[c][0] > 0.05).sort((a, b) => line.cols[b][0] - line.cols[a][0]);
+  const total = Math.max(line.actual + lost, 0.1);
+  const keep = Math.max(line.actual + gained, 0);
+  const bar = `<div class="ap-bigbar">
+      <span class="scored" style="flex:${keep} 1 0">${keep / total > 0.18 ? `Scored ${fmt(line.actual)}` : ""}</span>
+      ${gained < -0.05 ? `<span class="seg" title="${L.gained}" style="flex:${-gained} 1 0;background:var(--gained)"></span>` : ""}
+      ${parts.map(c => `<span class="seg" title="${L[c]}" style="flex:${line.cols[c][0]} 1 0;background:${HEX[c]};color:${DARK_COLS.includes(c) ? "#FFFFFF" : "var(--navy)"}">${line.cols[c][0] / total > 0.07 ? L[c] : ""}</span>`).join("")}
+    </div>`;
+  const legendCols = [...parts, ...(gained < -0.05 ? ["gained"] : [])];
+  const legend = legendCols.map(c => { const [v, n] = line.cols[c]; return `<div>
+      <span class="lab"><span class="ap-sw" style="background:${HEX[c]}"></span>${L[c]} <small>${n} play${n === 1 ? "" : "s"}</small></span>
+      <b style="color:${v < 0 ? "var(--green)" : "var(--ink)"}">${signed(v)}</b></div>`; }).join("");
+
+  const weekOpts = p.weeks.map(w => `<option value="${w.week}" ${wk && w.week === wk.week ? "selected" : ""}>Week ${w.week} ${esc(vsAt(w))}</option>`).join("");
+  const meta = wk ? `${esc(teamName(line.team || p.team))} · ${p.pos} · Week ${wk.week} ${esc(vsAt(wk))}`
+                  : `${esc(teamName(p.team))} · ${p.pos} · ${p.games} game${p.games === 1 ? "" : "s"}`;
+
+  band.innerHTML = `
+    <a class="ap-back" href="#/" data-back-pos="${p.pos}">← All ${p.pos}s</a>
+    <div class="ap-who"><span class="ap-ring">${face(p, 92)}</span>
+      <div><h1>${esc(p.name)}</h1><span class="ap-who-meta">${pill(line.team || p.team)} ${meta}</span></div></div>
+    <div class="ap-pcontrols">
+      ${seg("pscope", [["season", "Season"], ["week", "Week"]], ui.pScope, true)}
+      <select class="ap-select" id="apPWeek" aria-label="Week" ${wk ? "" : "hidden"}>${weekOpts}</select>
+    </div>`;
+
+  const sec = (t, inner) => `<section class="ap-sec"><h2 class="ap-h2">${t}</h2>${inner}</section>`;
+  root.innerHTML = `
+    <div class="ap-tiles">
+      ${tile("Actual", fmt(line.actual), `${p.pos}${line.actual_rank}${wk ? "" : ` · ${p.games} game${p.games === 1 ? "" : "s"}`}`)}
+      ${tile("Should have had", `+${fmt(lost)}`, `${nPlays} play${nPlays === 1 ? "" : "s"}`)}
+      ${tile("Adjusted", fmt(line.adjusted), `${p.pos}${line.adjusted_rank}${move ? ` · ${move > 0 ? "up" : "down"} ${Math.abs(move)} spot${Math.abs(move) === 1 ? "" : "s"}` : ""}`)}
+      ${tile("Lost to luck", ordn(pct), `percentile among ${p.pos}s${wk ? " that week" : ""}`)}
+    </div>
+    ${sec("Where the points went", `<div class="ap-card">${bar}
+      <div class="ap-barcap"><span>${fmt(line.actual)} scored${gained < -0.05 ? `, ${fmt(-gained)} of it gained` : ""}</span><span>${fmt(line.actual + lost)} if every play below had counted</span></div>
+      <div class="ap-legend">${legend || `<span class="ap-empty">Nothing lost${wk ? " this week" : ""}.</span>`}</div></div>`)}
+    ${wk ? "" : `<div class="ap-two">
+      ${sec("By week", `<div class="ap-card">${weekBars(p)}<div class="ap-cap">Green is what he scored; red is what luck took. The number on top is adjusted points.</div></div>`)}
+      ${sec("Season rank by week", `<div class="ap-card ap-trend"><div class="ap-key"><span><i style="background:var(--green)"></i>Actual</span><span><i style="background:var(--navy)"></i>Adjusted</span></div>${trend(p)}</div>`)}
+    </div>
+    ${sec("Week by week", weekGrid(p))}`}
+    ${sec("The plays", `<div id="apLog" class="ap-sec"></div>`)}`;
+
+  const drawLog = () => {
+    const cols = COLS.filter(c => log.some(l => l.col === c));
+    if (ui.pCol && !cols.includes(ui.pCol)) ui.pCol = "";
+    const items = log.filter(l => !ui.pCol || l.col === ui.pCol);
+    const chips = [["", "All", log.length], ...cols.map(c => [c, L[c], log.filter(l => l.col === c).length])];
+    root.querySelector("#apLog").innerHTML = `
+      <div class="ap-chips">${chips.map(([c, t, n]) => `<button type="button" data-col="${c}" aria-pressed="${c === ui.pCol}">${t} ${n}</button>`).join("")}</div>
+      <div class="ap-card ap-log">${items.length ? items.map(l => `<div class="ap-play" style="border-left-color:${HEX[l.col]}">
+          <div class="ap-play-when"><b>${L[l.col]}</b><span>Wk ${l.week} · ${l.q} ${esc(l.clock)}</span></div>
+          <div class="ap-play-desc">${esc(l.desc)}</div>
+          <div class="ap-play-pts" style="color:${l.pts < 0 ? "var(--green)" : l.col === "qb_fault" || l.col === "drop" ? HEX[l.col] : "var(--red)"}">${signed(l.pts)}</div></div>`).join("")
+        : `<div class="ap-empty">No plays${wk ? " this week" : ""}.</div>`}</div>`;
+    root.querySelectorAll("[data-col]").forEach(b => b.onclick = () => { ui.pCol = b.dataset.col; drawLog(); });
+  };
+  drawLog();
+
+  $$("[data-pscope]").forEach(b => b.onclick = () => { ui.pScope = b.dataset.pscope; ui.pCol = ""; drawPlayer(p); });
+  band.querySelector("#apPWeek").onchange = e => { ui.pWeek = +e.target.value; ui.pCol = ""; drawPlayer(p); };
+  // Back to the table for his position. Keeps the page you were on if it's the same position.
+  $$("[data-back-pos]").forEach(a => a.onclick = () => { if (ui.pos !== p.pos) { ui.pos = p.pos; ui.page = 1; } });
+}
+
+function weekBars(p) {
+  const weeks = Object.fromEntries(p.weeks.map(w => [w.week, w]));
+  const max = Math.max(...p.weeks.map(w => w.actual + lostOf(w)), 1);
+  const H = 160;
+  let out = "";
+  for (let n = 1; n <= DATA.through_week; n++) {
+    const w = weeks[n];
+    if (!w) { out += `<div class="ap-wk"><span class="top" style="color:var(--ink-3)">Bye</span><span>${n}</span></div>`; continue; }
+    const parts = LOSS.filter(c => w.cols[c][0] > 0.05).sort((a, b) => w.cols[a][0] - w.cols[b][0]);
+    const keep = Math.max(w.actual + gainedOf(w), 0), gain = -gainedOf(w);
+    out += `<div class="ap-wk" title="Week ${n}: ${fmt(w.actual)} scored, ${fmt(w.adjusted)} adjusted">
+      <span class="top">${Math.round(w.adjusted)}</span>
+      <span class="ap-wk-stack">
+        ${parts.map(c => `<span style="height:${w.cols[c][0] / max * H}px;background:${HEX[c]}"></span>`).join("")}
+        ${gain > 0.05 ? `<span style="height:${gain / max * H}px;background:var(--gained)"></span>` : ""}
+        <span style="height:${Math.max(keep / max * H, 1)}px;background:var(--scored)"></span>
+      </span><span>${n}</span></div>`;
+  }
+  return `<div class="ap-weeks">${out}</div>`;
+}
+
+function trend(p) {
+  const t = p.trend;
+  if (t.length < 2) return `<div class="ap-empty">Not enough weeks yet.</div>`;
+  const W = 520, H = 190, pl = 44, pr = 12, pt = 14, pb = 24;
+  const maxR = Math.max(...t.flatMap(d => [d[1], d[2]]), 5);
+  const x = w => pl + (w - t[0][0]) / (t[t.length - 1][0] - t[0][0]) * (W - pl - pr);
+  const y = r => pt + (r - 1) / (maxR - 1) * (H - pt - pb);
+  const path = i => t.map((d, j) => `${j ? "L" : "M"}${x(d[0]).toFixed(1)},${y(d[i]).toFixed(1)}`).join(" ");
+  const ticks = [...new Set([1, Math.round(maxR / 3), Math.round(2 * maxR / 3), maxR])];
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Season rank by week, actual and adjusted" style="font-family:var(--font)">
+    ${ticks.map(r => `<line x1="${pl}" x2="${W - pr}" y1="${y(r)}" y2="${y(r)}" stroke="#EEF0F2"/>
+      <text x="${pl - 8}" y="${y(r) + 4}" text-anchor="end" font-size="11" fill="#868D91">${p.pos}${r}</text>`).join("")}
+    ${t.map(d => `<text x="${x(d[0])}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#868D91">${d[0]}</text>`).join("")}
+    <path d="${path(1)}" fill="none" stroke="#1F8A4C" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <path d="${path(2)}" fill="none" stroke="#13294B" stroke-width="3"/>
+    ${t.map(d => `<circle cx="${x(d[0]).toFixed(1)}" cy="${y(d[2]).toFixed(1)}" r="3.5" fill="#13294B"/>`).join("")}
+  </svg>`;
+}
+
+function weekGrid(p) {
+  // One column per week: opponent, actual (shaded by its rank), lost to luck, and adjusted
+  const n = DATA.players.filter(q => q.pos === p.pos).length;
+  const rk = r => SCALE[Math.min(11, Math.floor((r - 1) / Math.max(n, 1) * 24))];
+  const c = (txt, bg, fg, sub = "") => `<td><span class="gc" style="background:${bg};color:${fg}">${txt}${sub ? `<small>${sub}</small>` : ""}</span></td>`;
+  const row = (lab, fn) => `<tr><th class="rowlab">${lab}</th>${p.weeks.map(fn).join("")}</tr>`;
+  const lostCell = w => { const v = lostOf(w); if (isZero(v)) return c("—", "transparent", "var(--line)"); const h = heat(v, "drop", 25); return c(h.txt, h.bg, h.fg); };
+  return `<div class="ap-grid"><table>
+    <thead><tr><th></th>${p.weeks.map(w => `<th>Wk ${w.week}</th>`).join("")}</tr></thead>
+    <tbody>
+      ${row("Opponent", w => c(esc(vsAt(w)), "transparent", "var(--ink-2)"))}
+      ${row("Actual", w => c(fmt(w.actual), rk(w.actual_rank), w.actual_rank <= 6 ? "#FFFFFF" : "var(--ink)", p.pos + w.actual_rank))}
+      ${row("Lost to luck", lostCell)}
+      ${row("Adjusted", w => c(fmt(w.adjusted), "var(--navy)", "#FFFFFF", p.pos + w.adjusted_rank))}
+    </tbody></table></div>`;
+}
+
+route();
+</script>
+</body>
+</html>
